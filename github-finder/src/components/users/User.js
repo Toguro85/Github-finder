@@ -1,116 +1,110 @@
-import React, { Component, Fragment } from 'react';
+import React, { Fragment, useEffect, useContext } from 'react';
 import Spinner from '../layout/Spinner';
-import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import Repos from '../repos/Repos';
+import GithubContext from '../../context/github/githubContext';
 
-class User extends Component {
-  componentDidMount() {
-    this.props.getUser(this.props.match.params.login);
-    this.props.getUserRepos(this.props.match.params.login);
-  }
-  static propTypes = {
-    loading: PropTypes.bool.isRequired,
-    user: PropTypes.object.isRequired,
-    getUser: PropTypes.func.isRequired,
-    getUserRepos: PropTypes.func.isRequired
-  };
+const User = ({ match }) => {
+  const githubContext = useContext(GithubContext);
+  const { loading, user, getUser, getUserRepos, repos } = githubContext;
 
-  render() {
-    const {
-      name,
-      avatar_url,
-      location,
-      hireable,
-      bio,
-      blog,
-      login,
-      html_url,
-      followers,
-      following,
-      public_repos,
-      public_gists,
-      company
-    } = this.props.user;
-    const { loading } = this.props;
+  useEffect(() => {
+    getUser(match.params.login);
+    getUserRepos(match.params.login);
+    //eslint-disable-next-line
+  }, []);
 
-    if (loading) {
-      return <Spinner />;
-    } else {
-      return (
-        <div>
-          <Link to="/" className="btn btn-light">
-            Back to Search
-          </Link>
-          Hireable: {''}
-          {hireable ? (
-            <i className="fas fa-check text-success" />
-          ) : (
-            <i className="fas fa-times-circle text-danger" />
-          )}
-          <div className="card grid-2">
-            <div className="all-center">
-              <img
-                src={avatar_url}
-                className="round-image"
-                style={{ width: '150px' }}
-              />
-              <h1>{name}</h1>
-              <p>Location: {location}</p>
-            </div>
-            <div>
-              {bio && (
-                <div>
-                  <h3>Bio</h3>
-                  <p>{bio}</p>
-                </div>
-              )}
-              <a href={html_url} className="btn btn-dark my-1">
-                Vist Github
-              </a>
-              <ul>
-                <li>
-                  {login && (
-                    <Fragment>
-                      <strong>Username:</strong> {login}
-                    </Fragment>
-                  )}
-                </li>
+  const {
+    name,
+    avatar_url,
+    location,
+    hireable,
+    bio,
+    blog,
+    login,
+    html_url,
+    followers,
+    following,
+    public_repos,
+    public_gists,
+    company
+  } = user;
 
-                <li>
-                  {blog && (
-                    <Fragment>
-                      <strong>Website:</strong> {blog}
-                    </Fragment>
-                  )}
-                </li>
-
-                <li>
-                  {company && (
-                    <Fragment>
-                      <strong>Company:</strong> {company}
-                    </Fragment>
-                  )}
-                </li>
-              </ul>
-            </div>
+  if (loading) {
+    return <Spinner />;
+  } else {
+    return (
+      <div>
+        <Link to="/" className="btn btn-light">
+          Back to Search
+        </Link>
+        Hireable: {''}
+        {hireable ? (
+          <i className="fas fa-check text-success" />
+        ) : (
+          <i className="fas fa-times-circle text-danger" />
+        )}
+        <div className="card grid-2">
+          <div className="all-center">
+            <img
+              src={avatar_url}
+              alt="User pic"
+              className="round-image"
+              style={{ width: '150px' }}
+            />
+            <h1>{name}</h1>
+            <p>Location: {location}</p>
           </div>
-          <div className="card text-center">
-            <div className="badge badge-primary">Followers: {followers}</div>
+          <div>
+            {bio && (
+              <div>
+                <h3>Bio</h3>
+                <p>{bio}</p>
+              </div>
+            )}
+            <a href={html_url} className="btn btn-dark my-1">
+              Vist Github
+            </a>
+            <ul>
+              <li>
+                {login && (
+                  <Fragment>
+                    <strong>Username:</strong> {login}
+                  </Fragment>
+                )}
+              </li>
 
-            <div className="badge badge-success">Following: {following}</div>
+              <li>
+                {blog && (
+                  <Fragment>
+                    <strong>Website:</strong> {blog}
+                  </Fragment>
+                )}
+              </li>
 
-            <div className="badge badge-light">
-              Public Repos: {public_repos}
-            </div>
-
-            <div className="badge badge-dark">Public Gists: {public_gists}</div>
+              <li>
+                {company && (
+                  <Fragment>
+                    <strong>Company:</strong> {company}
+                  </Fragment>
+                )}
+              </li>
+            </ul>
           </div>
-          <Repos repos={this.props.repos} />
         </div>
-      );
-    }
+        <div className="card text-center">
+          <div className="badge badge-primary">Followers: {followers}</div>
+
+          <div className="badge badge-success">Following: {following}</div>
+
+          <div className="badge badge-light">Public Repos: {public_repos}</div>
+
+          <div className="badge badge-dark">Public Gists: {public_gists}</div>
+        </div>
+        <Repos repos={repos} />
+      </div>
+    );
   }
-}
+};
 
 export default User;
